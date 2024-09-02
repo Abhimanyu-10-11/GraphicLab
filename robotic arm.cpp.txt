@@ -1,0 +1,107 @@
+#include <GL/glut.h>
+
+// Rotation angles for shoulder and elbow joints
+float shoulderAngle = 0.0f;
+float elbowAngle = 0.0f;
+
+// Function to draw the robotic arm
+void drawArm() {
+    // Draw the upper arm (connected to the shoulder)
+    glPushMatrix();
+        glRotatef(shoulderAngle, 0.0f, 0.0f, 1.0f);  // Rotate around the z-axis for shoulder joint
+        glTranslatef(0.5f, 0.0f, 0.0f);  // Move the upper arm to the right
+        glPushMatrix();
+            glScalef(1.0f, 0.2f, 1.0f);  // Scale to make the rectangle look like an arm
+            glutSolidCube(1.0);  // Draw the upper arm
+        glPopMatrix();
+
+        // Draw the lower arm (connected to the elbow)
+        glTranslatef(0.5f, 0.0f, 0.0f);  // Move the lower arm to the right end of the upper arm
+        glRotatef(elbowAngle, 0.0f, 0.0f, 1.0f);  // Rotate around the z-axis for elbow joint
+        glTranslatef(0.5f, 0.0f, 0.0f);  // Move the lower arm to the right
+        glPushMatrix();
+            glScalef(1.0f, 0.2f, 1.0f);  // Scale to make the rectangle look like an arm
+            glutSolidCube(1.0);  // Draw the lower arm
+        glPopMatrix();
+    glPopMatrix();
+}
+
+// Display callback function
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Draw the robotic arm
+    drawArm();
+
+    glutSwapBuffers();
+}
+
+// Keyboard callback function to control the robotic arm
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        // Rotate the shoulder joint
+        case 'q':
+            shoulderAngle += 5.0f;
+            if (shoulderAngle > 360.0f) shoulderAngle -= 360.0f;
+            break;
+        case 'a':
+            shoulderAngle -= 5.0f;
+            if (shoulderAngle < 0.0f) shoulderAngle += 360.0f;
+            break;
+
+        // Rotate the elbow joint
+        case 'w':
+            elbowAngle += 5.0f;
+            if (elbowAngle > 360.0f) elbowAngle -= 360.0f;
+            break;
+        case 's':
+            elbowAngle -= 5.0f;
+            if (elbowAngle < 0.0f) elbowAngle += 360.0f;
+            break;
+    }
+
+    // Request to redraw the window
+    glutPostRedisplay();
+}
+
+// Initialize the window and set up the rendering context
+void init() {
+    // Set the background color to black
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // Enable depth testing for correct 3D rendering
+    glEnable(GL_DEPTH_TEST);
+}
+
+// Reshape callback function to maintain the aspect ratio
+void reshape(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0, (float)w / (float)h, 1.0, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0.0, 0.0, 5.0,  // Camera position
+              0.0, 0.0, 0.0,  // Look at the origin
+              0.0, 1.0, 0.0); // Up vector
+}
+
+int main(int argc, char** argv) {
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Robotic Arm Rotation with Keyboard");
+
+    init();
+
+    // Set up callback functions
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard);
+
+    // Start the GLUT main loop
+    glutMainLoop();
+
+    return 0;
+}

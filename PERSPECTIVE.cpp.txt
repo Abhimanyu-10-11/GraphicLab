@@ -1,0 +1,146 @@
+#include <GL/glut.h>
+#include <iostream>
+
+// Enum to represent different projection modes
+enum ProjectionMode { PERSPECTIVE, ORTHOGRAPHIC, OBLIQUE };
+ProjectionMode currentMode = PERSPECTIVE;  // Start with perspective projection
+
+// Function to draw a 3D cube
+void drawCube() {
+    glBegin(GL_QUADS);
+        // Front face
+        glColor3f(1.0f, 0.0f, 0.0f);  // Red color
+        glVertex3f(-0.5f, -0.5f, 0.5f);
+        glVertex3f(0.5f, -0.5f, 0.5f);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glVertex3f(-0.5f, 0.5f, 0.5f);
+
+        // Back face
+        glColor3f(0.0f, 1.0f, 0.0f);  // Green color
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glVertex3f(0.5f, -0.5f, -0.5f);
+        glVertex3f(0.5f, 0.5f, -0.5f);
+        glVertex3f(-0.5f, 0.5f, -0.5f);
+
+        // Left face
+        glColor3f(0.0f, 0.0f, 1.0f);  // Blue color
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glVertex3f(-0.5f, -0.5f, 0.5f);
+        glVertex3f(-0.5f, 0.5f, 0.5f);
+        glVertex3f(-0.5f, 0.5f, -0.5f);
+
+        // Right face
+        glColor3f(1.0f, 1.0f, 0.0f);  // Yellow color
+        glVertex3f(0.5f, -0.5f, -0.5f);
+        glVertex3f(0.5f, -0.5f, 0.5f);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glVertex3f(0.5f, 0.5f, -0.5f);
+
+        // Top face
+        glColor3f(1.0f, 0.0f, 1.0f);  // Magenta color
+        glVertex3f(-0.5f, 0.5f, -0.5f);
+        glVertex3f(0.5f, 0.5f, -0.5f);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glVertex3f(-0.5f, 0.5f, 0.5f);
+
+        // Bottom face
+        glColor3f(0.0f, 1.0f, 1.0f);  // Cyan color
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glVertex3f(0.5f, -0.5f, -0.5f);
+        glVertex3f(0.5f, -0.5f, 0.5f);
+        glVertex3f(-0.5f, -0.5f, 0.5f);
+    glEnd();
+}
+
+// Function to set the projection mode based on the current mode
+void setProjection(int width, int height) {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    switch (currentMode) {
+        case PERSPECTIVE:
+            gluPerspective(60.0, (double)width / (double)height, 1.0, 100.0);
+            break;
+        case ORTHOGRAPHIC:
+            glOrtho(-2.0, 2.0, -2.0, 2.0, -10.0, 10.0);
+            break;
+        case OBLIQUE:
+            glOrtho(-2.0, 2.0, -2.0, 2.0, -10.0, 10.0);  // Start with orthographic projection
+            glTranslatef(0.0f, 0.0f, -5.0f);            // Apply a translation
+            glRotatef(45.0f, 0.0f, 1.0f, 0.0f);         // Apply a rotation to simulate oblique view
+            break;
+    }
+
+    glMatrixMode(GL_MODELVIEW);
+}
+
+// Display callback function
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Reset transformations
+    glLoadIdentity();
+
+    // Set the camera position
+    gluLookAt(0.0, 0.0, 5.0,   // Camera position
+              0.0, 0.0, 0.0,   // Look at the origin
+              0.0, 1.0, 0.0);  // Up vector
+
+    // Draw the 3D object (a cube)
+    drawCube();
+
+    glutSwapBuffers();
+}
+
+// Reshape callback function
+void reshape(int width, int height) {
+    glViewport(0, 0, width, height);
+    setProjection(width, height);
+}
+
+// Keyboard callback function to switch between projections
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        case 'p':  // Set to perspective projection
+            currentMode = PERSPECTIVE;
+            break;
+        case 'o':  // Set to orthographic projection
+            currentMode = ORTHOGRAPHIC;
+            break;
+        case 'b':  // Set to oblique projection
+            currentMode = OBLIQUE;
+            break;
+    }
+
+    // Request to reshape the window with the new projection mode
+    glutPostRedisplay();
+}
+
+// Initialize OpenGL settings
+void init() {
+    // Set the background color to black
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // Enable depth testing for 3D rendering
+    glEnable(GL_DEPTH_TEST);
+}
+
+int main(int argc, char** argv) {
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("3D Object with Different Views");
+
+    init();
+
+    // Set up callback functions
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard);
+
+    // Start the GLUT main loop
+    glutMainLoop();
+
+    return 0;
+}

@@ -1,0 +1,66 @@
+#include <GL/glut.h>
+
+// RGB color values for the triangle
+float red = 1.0f, green = 0.0f, blue = 0.0f;
+
+// Function to draw a triangle
+void drawTriangle() {
+    glBegin(GL_TRIANGLES);
+        glColor3f(red, green, blue);  // Set the color of the triangle
+        glVertex2f(-0.5f, -0.5f);
+        glVertex2f(0.5f, -0.5f);
+        glVertex2f(0.0f, 0.5f);
+    glEnd();
+}
+
+// Display callback function
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw the triangle
+    drawTriangle();
+
+    glFlush();
+}
+
+// Mouse callback function to change color based on mouse clicks
+void mouse(int button, int state, int x, int y) {
+    if (state == GLUT_DOWN) {
+        // Change color based on mouse button pressed
+        if (button == GLUT_LEFT_BUTTON) {
+            red = 1.0f; green = 0.0f; blue = 0.0f;  // Left-click changes color to red
+        } else if (button == GLUT_MIDDLE_BUTTON) {
+            red = 0.0f; green = 1.0f; blue = 0.0f;  // Middle-click changes color to green
+        } else if (button == GLUT_RIGHT_BUTTON) {
+            red = 0.0f; green = 0.0f; blue = 1.0f;  // Right-click changes color to blue
+        }
+
+        // Request to redraw the window with the new color
+        glutPostRedisplay();
+    }
+}
+
+// Initialize the window and set up the rendering context
+void init() {
+    // Set the background color to black
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+int main(int argc, char** argv) {
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("Triangle Color Change with Mouse");
+
+    init();
+
+    // Set up the display and mouse callback functions
+    glutDisplayFunc(display);
+    glutMouseFunc(mouse);
+
+    // Start the GLUT main loop
+    glutMainLoop();
+
+    return 0;
+}

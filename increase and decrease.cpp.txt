@@ -1,0 +1,81 @@
+#include <GL/glut.h>
+
+// Initial size of the square
+float squareSize = 0.5f;
+
+// Function to draw a square
+void drawSquare() {
+    glBegin(GL_QUADS);
+        glVertex2f(-squareSize, -squareSize);
+        glVertex2f(squareSize, -squareSize);
+        glVertex2f(squareSize, squareSize);
+        glVertex2f(-squareSize, squareSize);
+    glEnd();
+}
+
+// Display callback function
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw the square
+    drawSquare();
+
+    glFlush();
+}
+
+// Keyboard callback function to increase/decrease size of square
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        case '+':  // Increase the size of the square
+            squareSize += 0.1f;
+            break;
+        case '-':  // Decrease the size of the square
+            squareSize -= 0.1f;
+            if (squareSize < 0.1f) squareSize = 0.1f;  // Set a minimum size
+            break;
+    }
+
+    // Request to redraw the window
+    glutPostRedisplay();
+}
+
+// Mouse scroll function to increase/decrease size of square
+void mouse(int button, int state, int x, int y) {
+    if (state == GLUT_DOWN) {
+        if (button == 3) {  // Scroll up (increase size)
+            squareSize += 0.1f;
+        } else if (button == 4) {  // Scroll down (decrease size)
+            squareSize -= 0.1f;
+            if (squareSize < 0.1f) squareSize = 0.1f;  // Set a minimum size
+        }
+
+        // Request to redraw the window
+        glutPostRedisplay();
+    }
+}
+
+// Initialize the window and set up the rendering context
+void init() {
+    // Set the background color to black
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+int main(int argc, char** argv) {
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("Resize Square with Mouse and Keyboard");
+
+    init();
+
+    // Set up the display, keyboard, and mouse callback functions
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);
+    glutMouseFunc(mouse);
+
+    // Start the GLUT main loop
+    glutMainLoop();
+
+    return 0;
+}

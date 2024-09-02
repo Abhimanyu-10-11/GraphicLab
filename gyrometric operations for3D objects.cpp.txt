@@ -1,0 +1,102 @@
+#include <GL/glut.h>
+
+// Initial parameters for the cube (size, position, rotation)
+float cubeSize = 1.0f;
+float posX = 0.0f, posY = 0.0f, posZ = 0.0f;
+float rotateX = 0.0f, rotateY = 0.0f, rotateZ = 0.0f;
+
+void drawCube() {
+    glPushMatrix();
+
+    // Apply transformations
+    glTranslatef(posX, posY, posZ);
+    glRotatef(rotateX, 1.0f, 0.0f, 0.0f);  // Rotate around the x-axis
+    glRotatef(rotateY, 0.0f, 1.0f, 0.0f);  // Rotate around the y-axis
+    glRotatef(rotateZ, 0.0f, 0.0f, 1.0f);  // Rotate around the z-axis
+    glScalef(cubeSize, cubeSize, cubeSize);
+
+    // Draw the cube
+    glutWireCube(1.0);  // Draw a wireframe cube with size 1.0
+
+    glPopMatrix();
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Set the color of the object (e.g., white)
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    // Draw the cube
+    drawCube();
+
+    glutSwapBuffers();
+}
+
+void reshape(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    // Set the perspective projection
+    gluPerspective(45.0, (float)w / (float)h, 1.0, 100.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    // Set the camera
+    gluLookAt(0.0, 0.0, 5.0,   // Camera position
+              0.0, 0.0, 0.0,   // Look at the origin
+              0.0, 1.0, 0.0);  // Up vector
+}
+
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        // Translate the cube
+        case 'w': posY += 0.1f; break;  // Move up
+        case 's': posY -= 0.1f; break;  // Move down
+        case 'a': posX -= 0.1f; break;  // Move left
+        case 'd': posX += 0.1f; break;  // Move right
+        case 'z': posZ += 0.1f; break;  // Move forward
+        case 'x': posZ -= 0.1f; break;  // Move backward
+
+        // Rotate the cube
+        case 'r': rotateX += 5.0f; break;  // Rotate around the x-axis
+        case 'R': rotateX -= 5.0f; break;  // Rotate around the x-axis
+        case 'y': rotateY += 5.0f; break;  // Rotate around the y-axis
+        case 'Y': rotateY -= 5.0f; break;  // Rotate around the y-axis
+        case 't': rotateZ += 5.0f; break;  // Rotate around the z-axis
+        case 'T': rotateZ -= 5.0f; break;  // Rotate around the z-axis
+
+        // Resize the cube
+        case '+': cubeSize += 0.1f; break;  // Increase size
+        case '-': cubeSize -= 0.1f; break;  // Decrease size
+
+        // Exit the program
+        case 27: exit(0);  // Escape key to exit
+    }
+
+    // Request to redraw the window
+    glutPostRedisplay();
+}
+
+int main(int argc, char** argv) {
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("3D Geometric Operations");
+
+    // Enable depth testing for 3D rendering
+    glEnable(GL_DEPTH_TEST);
+
+    // Set up the display, reshape, and keyboard functions
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard);
+
+    // Start the GLUT main loop
+    glutMainLoop();
+
+    return 0;
+}

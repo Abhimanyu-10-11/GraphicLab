@@ -1,0 +1,94 @@
+#include <GL/glut.h>
+
+// Cube rotation angles
+float angleX = 0.0f;
+float angleY = 0.0f;
+
+// Function to draw a simple 3D cube
+void drawCube() {
+    glColor3f(1.0f, 0.0f, 0.0f);  // Set cube color to red
+    glutSolidCube(1.0f);  // Draw a solid cube with side length 1.0
+}
+
+// Function to draw a simple floor
+void drawFloor() {
+    glColor3f(0.5f, 0.5f, 0.5f);  // Set floor color
+    glBegin(GL_QUADS);
+    glVertex3f(-5.0f, -1.0f, -5.0f);
+    glVertex3f(5.0f, -1.0f, -5.0f);
+    glVertex3f(5.0f, -1.0f, 5.0f);
+    glVertex3f(-5.0f, -1.0f, 5.0f);
+    glEnd();
+}
+
+// Display callback function
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear color and depth buffers
+    glLoadIdentity();  // Reset transformations
+
+    // Set the camera
+    gluLookAt(0.0, 2.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);  // Camera setup
+
+    drawFloor();  // Draw the floor
+
+    // Apply rotation to the cube
+    glPushMatrix();  // Save the current transformation matrix
+    glTranslatef(0.0f, 0.0f, 0.0f);  // Center the cube
+    glRotatef(angleX, 1.0f, 0.0f, 0.0f);  // Rotate around X-axis
+    glRotatef(angleY, 0.0f, 1.0f, 0.0f);  // Rotate around Y-axis
+    drawCube();  // Draw the cube
+    glPopMatrix();  // Restore the previous transformation matrix
+
+    glutSwapBuffers();  // Swap the front and back buffers
+}
+
+// Timer callback function for cube rotation
+void timer(int value) {
+    angleX += 0.2f;  // Increment rotation angle around X-axis
+    angleY += 0.3f;  // Increment rotation angle around Y-axis
+    if (angleX > 360) angleX -= 360;  // Keep angles within 0-360 degrees
+    if (angleY > 360) angleY -= 360;
+    glutPostRedisplay();  // Request a redraw
+    glutTimerFunc(16, timer, 0);  // 60 FPS timer callback
+}
+
+// Reshape callback function
+void reshape(int w, int h) {
+    glViewport(0, 0, w, h);  // Set viewport size
+    glMatrixMode(GL_PROJECTION);  // Switch to projection matrix
+    glLoadIdentity();  // Reset projection matrix
+    gluPerspective(45.0, (double)w / (double)h, 1.0, 100.0);  // Perspective projection
+    glMatrixMode(GL_MODELVIEW);  // Switch back to modelview matrix
+}
+
+// Keyboard callback function to control rotation speed
+void keyboard(int key, int x, int y) {
+    if (key == GLUT_KEY_UP) {
+        angleX += 5.0f;  // Increase rotation speed around X-axis
+    } else if (key == GLUT_KEY_DOWN) {
+        angleX -= 5.0f;  // Decrease rotation speed around X-axis
+    } else if (key == GLUT_KEY_LEFT) {
+        angleY -= 5.0f;  // Decrease rotation speed around Y-axis
+    } else if (key == GLUT_KEY_RIGHT) {
+        angleY += 5.0f;  // Increase rotation speed around Y-axis
+    }
+    glutPostRedisplay();  // Request a redraw
+}
+
+// Main function
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);  // Initialize GLUT
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);  // Enable double buffering, RGB mode, and depth buffer
+    glutInitWindowSize(800, 600);  // Set window size
+    glutCreateWindow("Simplified 3D Scene");  // Create the window
+
+    glEnable(GL_DEPTH_TEST);  // Enable depth testing for 3D rendering
+
+    glutDisplayFunc(display);  // Register display callback
+    glutReshapeFunc(reshape);  // Register reshape callback
+    glutSpecialFunc(keyboard);  // Register keyboard callback
+    glutTimerFunc(0, timer, 0);  // Register timer callback for cube rotation
+
+    glutMainLoop();  // Enter the event-processing loop
+    return 0;
+}
